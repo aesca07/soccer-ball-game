@@ -1,0 +1,104 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Define constants for the window size and ball size
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+BALL_SIZE = 50
+
+# Define constants for the ball and goal position
+BALL_START_X = 200
+BALL_START_Y = 200
+GOAL_X = 700
+GOAL_Y = 250
+
+# Define constants for the ball speed and gravity
+BALL_SPEED_X = 0
+BALL_SPEED_Y = 0
+GRAVITY = 0.2
+
+# Create the window and set the title
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Soccer Flick")
+
+# Load the ball and goal images
+ball_image = pygame.image.load("ball.png")
+goal_image = pygame.image.load("goal.png")
+
+# Set the initial position of the ball
+ball_rect = ball_image.get_rect()
+ball_rect.x = BALL_START_X
+ball_rect.y = BALL_START_Y
+
+# Set the initial position of the goal
+goal_rect = goal_image.get_rect()
+goal_rect.x = GOAL_X
+goal_rect.y = GOAL_Y
+
+# Define a function to handle the ball movement and collision
+def move_ball():
+    global BALL_SPEED_X, BALL_SPEED_Y
+    
+    # Apply gravity to the ball
+    BALL_SPEED_Y += GRAVITY
+    
+    # Move the ball horizontally
+    ball_rect.x += BALL_SPEED_X
+    
+    # Check for collision with the goal
+    if ball_rect.colliderect(goal_rect):
+        print("Goal!")
+        reset_ball()
+    
+    # Move the ball vertically
+    ball_rect.y += BALL_SPEED_Y
+    
+    # Check for collision with the bottom of the window
+    if ball_rect.bottom >= WINDOW_HEIGHT:
+        print("Missed!")
+        reset_ball()
+
+# Define a function to reset the ball position and speed
+def reset_ball():
+    global BALL_SPEED_X, BALL_SPEED_Y
+    
+    ball_rect.x = BALL_START_X
+    ball_rect.y = BALL_START_Y
+    
+    BALL_SPEED_X = random.uniform(1, 3) * (random.choice([-1, 1]))
+    BALL_SPEED_Y = -10
+
+# Run the game loop
+while True:
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Get the position of the mouse click
+            click_pos = pygame.mouse.get_pos()
+            
+            # Calculate the distance between the click and the ball
+            dist_x = click_pos[0] - ball_rect.centerx
+            dist_y = click_pos[1] - ball_rect.centery
+            
+            # Set the ball speed based on the distance and direction of the click
+            BALL_SPEED_X = dist_x / 20
+            BALL_SPEED_Y = dist_y / 20
+            
+    # Fill the window with white
+    window.fill((255, 255, 255))
+    
+    # Draw the ball and goal
+    window.blit(ball_image, ball_rect)
+    window.blit(goal_image, goal_rect)
+    
+    # Move the ball and check for collisions
+    move_ball()
+    
+    # Update the display
+    pygame.display.update()
